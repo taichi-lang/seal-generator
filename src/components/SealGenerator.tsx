@@ -7,9 +7,12 @@ import {
   type SealType,
   drawSeal,
 } from "@/lib/seal";
+import type { SealDesign } from "@/lib/sealDesign";
+import { FREE_SIZE, PAID_FEATURES, PRICE_JPY } from "@/lib/pricing";
+import { downloadCanvasPng, safeFileName, sealTypeLabel } from "@/lib/download";
 
 const DEFAULT_COLOR = "#B91C1C";
-const CANVAS_SIZE = 560;
+const CANVAS_SIZE = FREE_SIZE;
 
 export default function SealGenerator() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -20,6 +23,17 @@ export default function SealGenerator() {
   const [color, setColor] = useState(DEFAULT_COLOR);
   const [squareSuffix, setSquareSuffix] = useState("之印");
   const [roundTitle, setRoundTitle] = useState("代表取締役印");
+  const [checkoutBusy, setCheckoutBusy] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
+
+  const design: SealDesign = {
+    companyName,
+    type: sealType,
+    fontStyle,
+    color,
+    squareSuffix,
+    roundTitle,
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -45,11 +59,34 @@ export default function SealGenerator() {
   const handleDownload = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const link = document.createElement("a");
-    const sanitized = companyName.replace(/[\\/:*?"<>|]/g, "_") || "seal";
-    link.download = `${sanitized}_${sealType === "square" ? "角印" : "丸印"}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+    downloadCanvasPng(
+      canvas,
+      `${safeFileName(companyName)}_${sealTypeLabel(sealType)}_${CANVAS_SIZE}px.png`,
+    );
+  };
+
+  const handlePurchase = async () => {
+    setCheckoutError("");
+    setCheckoutBusy(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(design),
+      });
+      const data = (await res.json()) as { url?: string };
+      if (!res.ok || !data.url) {
+        setCheckoutError(
+          "決済ページを開けませんでした。時間をおいて再度お試しください。",
+        );
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      setCheckoutError("通信に失敗しました。接続を確認してください。");
+    } finally {
+      setCheckoutBusy(false);
+    }
   };
 
   return (
@@ -185,7 +222,7 @@ export default function SealGenerator() {
           onClick={handleDownload}
           className="w-full py-3 rounded-lg bg-red-700 hover:bg-red-800 text-white font-semibold transition shadow-sm"
         >
-          PNG ダウンロード
+          無料で PNG ダウンロード({CANVAS_SIZE}px・透かしなし)
         </button>
       </section>
 
@@ -202,6 +239,57 @@ export default function SealGenerator() {
         </div>
         <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400 text-center">
           透過 PNG / {CANVAS_SIZE}px。見積書・請求書にそのまま貼付可能
+        </p>
+      </section>
+
+      <section className="md:col-span-2 bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-800">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+            高解像度パック
+          </h2>
+          <p className="text-zinc-900 dark:text-zinc-100">
+            <span className="text-2xl font-bold">{PRICE_JPY.toLocaleString()}</span>
+            <span className="text-sm"> 円(税込・買い切り)</span>
+          </p>
+        </div>
+
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+          上のダウンロードは無料で、透かしも入りません。印刷に耐えるサイズと、
+          業務で使うための許諾が必要な方だけご購入ください。
+        </p>
+
+        <ul className="mt-4 space-y-2">
+          {PAID_FEATURES.map((feature) => (
+            <li
+              key={feature}
+              className="flex gap-2 text-sm text-zinc-700 dark:text-zinc-300"
+            >
+              <span aria-hidden className="text-red-700 dark:text-red-500">
+                ✓
+              </span>
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+
+        <button
+          type="button"
+          onClick={handlePurchase}
+          disabled={checkoutBusy || companyName.trim().length === 0}
+          className="mt-5 w-full py-3 rounded-lg border-2 border-red-700 text-red-700 dark:text-red-400 dark:border-red-500 font-semibold hover:bg-red-50 dark:hover:bg-zinc-800 disabled:opacity-50 transition"
+        >
+          {checkoutBusy
+            ? "決済ページへ移動しています…"
+            : `高解像度パックを購入する(${PRICE_JPY.toLocaleString()}円)`}
+        </button>
+
+        {checkoutError && (
+          <p className="mt-2 text-sm text-red-700 dark:text-red-400">{checkoutError}</p>
+        )}
+
+        <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+          決済は Stripe を利用します。カード情報が当方に渡ることはありません。
+          いま画面に表示されている設定内容がそのまま高解像度で書き出されます。
         </p>
       </section>
     </div>
