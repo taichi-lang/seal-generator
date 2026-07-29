@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 会社印ジェネレーター
 
-## Getting Started
+会社名を入力するだけで、見積書・請求書にそのまま貼れる **角印(社印)** と **丸印(代表者印)** の
+印影画像をブラウザ上で生成する Web アプリです。印影の描画は Canvas でクライアント側だけで完結し、
+入力した会社名がサーバーに送られることはありません。
 
-First, run the development server:
+## 特徴
+
+- **角印・丸印の2種類**に対応。「株式会社」などの法人格を自動で判別し、角印では独立した1列に配置します
+- **4書体**から選択(Google Fonts の極太明朝で印篆の重厚感を再現)
+- 文字数に応じて字面を自動で伸縮し、枠内に収めます
+- 朱色は自由に変更可能
+- **透過 PNG** で書き出すため、既存の書類に重ねて貼れます
+
+## 料金
+
+| | 無料 | 高解像度パック(500円・買い切り) |
+|---|---|---|
+| 印影の生成・プレビュー | ✓ | ✓ |
+| 書体・色の変更 | ✓ | ✓ |
+| **透かし** | **入りません** | 入りません |
+| PNG ダウンロード | 560px | 300 / 600 / 1200 / 2000px |
+| 角印・丸印の一括書き出し | — | ✓ |
+| 商用利用の許諾 | — | ✓(利用許諾書を発行) |
+
+無料プランの出力に透かしは入れていません。無料でも実用に足る画像をそのまま配布し、
+課金は「印刷に耐える解像度」と「業務利用の許諾」で受け取る設計です。
+
+## 技術スタック
+
+- [Next.js](https://nextjs.org) 16(App Router / Turbopack)
+- React 19 / TypeScript
+- Tailwind CSS v4
+- Canvas 2D API(印影の描画。外部の画像生成ライブラリは使っていません)
+- Stripe Checkout(決済。SDK は入れず REST API を直接呼び出しています)
+
+## セットアップ
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3001 が開きます。決済を伴わない機能はこれだけで動きます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 環境変数
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+決済を動かす場合のみ、`.env.local`(またはホスティング先の環境変数)に次を設定します。
 
-## Learn More
+| 変数 | 説明 |
+|---|---|
+| `STRIPE_SECRET_KEY` | Stripe のシークレットキー。**サーバー側のみで参照**し、クライアントには渡しません |
+| `SITE_URL` | 決済完了後の戻り先を組み立てるためのサイト URL(末尾スラッシュなし) |
 
-To learn more about Next.js, take a look at the following resources:
+未設定の場合、決済 API は `500 payment not configured` を返し、無料機能はそのまま動作します。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 決済の仕組み(ステートレス設計)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+データベースを持ちません。購入内容は Stripe の Checkout セッションの `metadata` に載せて往復させます。
 
-## Deploy on Vercel
+```
+ブラウザ ──POST /api/checkout──▶ Stripe にセッション作成(metadata に印影の設計値)
+        ◀──── Checkout の URL ───
+        ──────── 決済 ─────────▶ Stripe
+        ◀── /unlock?session_id= ──
+        ──GET /api/unlock────────▶ Stripe にセッション照会
+                                   payment_status === "paid" のときだけ設計値を返す
+        ◀─── 設計値 + 発行番号 ───
+        (ブラウザが高解像度で再描画してダウンロード)
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+この構成のため、当方のサーバーには購入者の情報が一切保存されません。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ディレクトリ
+
+```
+src/
+├── app/
+│   ├── api/checkout/route.ts   Checkout セッションの作成
+│   ├── api/unlock/route.ts     決済の検証と設計値の返却
+│   ├── legal/page.tsx          特商法表記・プライバシーポリシー
+│   ├── unlock/page.tsx         決済後のダウンロード画面
+│   └── page.tsx                トップ
+├── components/
+│   ├── SealGenerator.tsx       設定 UI・プレビュー・購入導線
+│   ├── UnlockPanel.tsx         購入済みの高解像度ダウンロード
+│   └── SiteFooter.tsx
+└── lib/
+    ├── seal.ts                 印影の描画ロジック
+    ├── sealDesign.ts           設計値の検証と Stripe metadata 変換
+    ├── pricing.ts              料金プランの定義
+    ├── license.ts              利用許諾書の生成
+    ├── download.ts             書き出しヘルパー
+    └── site.ts                 事業者表記
+```
+
+## ご利用上の注意
+
+本アプリが生成するのは印影の**画像データ**であり、実物の印章ではありません。
+**印鑑登録(実印)には使用できません。**
+生成された印影が既存の登録商標や他社の印影と類似しないことは保証しません。
