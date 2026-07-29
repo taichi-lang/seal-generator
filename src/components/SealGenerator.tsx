@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import {
   FONT_LABELS,
+  FRAME_LABELS,
   type FontStyle,
+  type FrameStyle,
   type SealType,
   drawSeal,
 } from "@/lib/seal";
@@ -23,6 +25,7 @@ export default function SealGenerator() {
   const [color, setColor] = useState(DEFAULT_COLOR);
   const [squareSuffix, setSquareSuffix] = useState("之印");
   const [roundTitle, setRoundTitle] = useState("代表取締役印");
+  const [frameStyle, setFrameStyle] = useState<FrameStyle>("single");
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
 
@@ -33,6 +36,7 @@ export default function SealGenerator() {
     color,
     squareSuffix,
     roundTitle,
+    frameStyle,
   };
 
   useEffect(() => {
@@ -48,13 +52,22 @@ export default function SealGenerator() {
         color,
         squareSuffix,
         roundTitle,
+        frameStyle,
       });
       if (cancelled) return;
     })();
     return () => {
       cancelled = true;
     };
-  }, [companyName, sealType, fontStyle, color, squareSuffix, roundTitle]);
+  }, [
+    companyName,
+    sealType,
+    fontStyle,
+    color,
+    squareSuffix,
+    roundTitle,
+    frameStyle,
+  ]);
 
   const handleDownload = () => {
     const canvas = canvasRef.current;
@@ -188,6 +201,34 @@ export default function SealGenerator() {
               className="mt-1 w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-red-700"
             />
           </label>
+        )}
+
+        {sealType === "square" && (
+          <div>
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block mb-2">
+              枠デザイン（角印）
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              {(Object.keys(FRAME_LABELS) as FrameStyle[]).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setFrameStyle(key)}
+                  aria-pressed={frameStyle === key}
+                  className={`py-2 px-2 text-sm rounded-lg border transition ${
+                    frameStyle === key
+                      ? "bg-red-700 text-white border-red-700"
+                      : "bg-white dark:bg-zinc-950 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  }`}
+                >
+                  {FRAME_LABELS[key]}
+                </button>
+              ))}
+            </div>
+            <span className="mt-1 block text-xs text-zinc-500 dark:text-zinc-400">
+              いずれの枠も無料でダウンロードできます
+            </span>
+          </div>
         )}
 
         <label className="block">

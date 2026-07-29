@@ -1,5 +1,7 @@
 export type SealType = "square" | "round";
 export type FontStyle = "shippori" | "noto" | "kaisei" | "yuji";
+/** 角印の枠デザイン。丸印は二重円で固定のため適用しない。 */
+export type FrameStyle = "single" | "bold" | "double" | "rounded";
 
 export interface SealOptions {
   companyName: string;
@@ -9,6 +11,7 @@ export interface SealOptions {
   color: string;
   squareSuffix: string;
   roundTitle: string;
+  frameStyle: FrameStyle;
 }
 
 export const FONT_FAMILIES: Record<FontStyle, string> = {
@@ -27,6 +30,13 @@ export const FONT_WEIGHTS: Record<FontStyle, number> = {
   noto: 900,
   kaisei: 700,
   yuji: 400,
+};
+
+export const FRAME_LABELS: Record<FrameStyle, string> = {
+  single: "標準（一重枠）",
+  bold: "太枠（押印感が強い）",
+  double: "二重枠（格式）",
+  rounded: "角丸（やわらかい印象）",
 };
 
 export const FONT_LABELS: Record<FontStyle, string> = {
@@ -153,6 +163,61 @@ function drawCellChar(
   ctx.restore();
 }
 
+/** 角印の枠を描き、文字を置ける内側の余白(片側)を返す。
+ *  枠の太さは style ごとに変わるため、文字の配置もこの戻り値に従わせる。 */
+function drawSquareFrame(
+  ctx: CanvasRenderingContext2D,
+  size: number,
+  color: string,
+  style: FrameStyle,
+): number {
+  const margin = size * 0.05;
+  const gap = size * 0.015;
+
+  ctx.strokeStyle = color;
+  ctx.lineJoin = "miter";
+
+  if (style === "double") {
+    const outerWidth = size * 0.03;
+    const innerWidth = size * 0.014;
+    const innerOffset = margin + size * 0.052;
+
+    ctx.lineWidth = outerWidth;
+    ctx.strokeRect(margin, margin, size - 2 * margin, size - 2 * margin);
+
+    ctx.lineWidth = innerWidth;
+    ctx.strokeRect(
+      innerOffset,
+      innerOffset,
+      size - 2 * innerOffset,
+      size - 2 * innerOffset,
+    );
+
+    // 内枠は線が細く、文字が近づくと枠と一体に見えてしまうため余白を広めに取る
+    return innerOffset + innerWidth / 2 + gap * 1.8;
+  }
+
+  const borderWidth = style === "bold" ? size * 0.06 : size * 0.035;
+  ctx.lineWidth = borderWidth;
+
+  if (style === "rounded" && typeof ctx.roundRect === "function") {
+    ctx.beginPath();
+    ctx.roundRect(
+      margin,
+      margin,
+      size - 2 * margin,
+      size - 2 * margin,
+      size * 0.13,
+    );
+    ctx.stroke();
+    // 角が丸い分、四隅で文字が枠に寄るため余白を少し広く取る
+    return margin + borderWidth / 2 + gap + size * 0.012;
+  }
+
+  ctx.strokeRect(margin, margin, size - 2 * margin, size - 2 * margin);
+  return margin + borderWidth / 2 + gap;
+}
+
 function drawSquareSeal(
   ctx: CanvasRenderingContext2D,
   options: SealOptions,
@@ -168,19 +233,7 @@ function drawSquareSeal(
 
   if (groups.length === 0) groups.push(companyName || "");
 
-  const borderWidth = size * 0.035;
-  const margin = size * 0.05;
-  ctx.strokeStyle = color;
-  ctx.lineWidth = borderWidth;
-  ctx.lineJoin = "miter";
-  ctx.strokeRect(
-    margin,
-    margin,
-    size - 2 * margin,
-    size - 2 * margin,
-  );
-
-  const padding = margin + borderWidth / 2 + size * 0.015;
+  const padding = drawSquareFrame(ctx, size, color, options.frameStyle);
   const innerSize = size - 2 * padding;
 
   const cols = groups.length;
