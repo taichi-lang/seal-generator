@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import {
   FONT_LABELS,
   FRAME_LABELS,
+  LAYOUT_LABELS,
   type FontStyle,
   type FrameStyle,
   type SealType,
+  type TextLayout,
   drawSeal,
 } from "@/lib/seal";
 import type { SealDesign } from "@/lib/sealDesign";
@@ -26,6 +28,7 @@ export default function SealGenerator() {
   const [squareSuffix, setSquareSuffix] = useState("之印");
   const [roundTitle, setRoundTitle] = useState("代表取締役印");
   const [frameStyle, setFrameStyle] = useState<FrameStyle>("single");
+  const [layout, setLayout] = useState<TextLayout>("vertical");
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
 
@@ -37,6 +40,7 @@ export default function SealGenerator() {
     squareSuffix,
     roundTitle,
     frameStyle,
+    layout,
   };
 
   useEffect(() => {
@@ -53,6 +57,7 @@ export default function SealGenerator() {
         squareSuffix,
         roundTitle,
         frameStyle,
+        layout,
       });
       if (cancelled) return;
     })();
@@ -67,6 +72,7 @@ export default function SealGenerator() {
     squareSuffix,
     roundTitle,
     frameStyle,
+    layout,
   ]);
 
   const handleDownload = () => {
@@ -201,6 +207,34 @@ export default function SealGenerator() {
               className="mt-1 w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-red-700"
             />
           </label>
+        )}
+
+        {sealType === "square" && (
+          <div>
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block mb-2">
+              文字組み（角印）
+            </span>
+            <div className="flex gap-2">
+              {(Object.keys(LAYOUT_LABELS) as TextLayout[]).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setLayout(key)}
+                  aria-pressed={layout === key}
+                  className={`flex-1 py-2 px-2 text-sm rounded-lg border transition ${
+                    layout === key
+                      ? "bg-red-700 text-white border-red-700"
+                      : "bg-white dark:bg-zinc-950 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  }`}
+                >
+                  {LAYOUT_LABELS[key]}
+                </button>
+              ))}
+            </div>
+            <span className="mt-1 block text-xs text-zinc-500 dark:text-zinc-400">
+              社印は縦書きが一般的ですが、横書きの社名やロゴに合わせる場合は横書きも使われます
+            </span>
+          </div>
         )}
 
         {sealType === "square" && (

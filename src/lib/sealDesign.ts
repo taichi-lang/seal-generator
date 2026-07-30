@@ -6,8 +6,8 @@
  * 取り出すため、当方のサーバーには何も保存されない。
  */
 
-import type { FontStyle, FrameStyle, SealType } from "./seal";
-import { FONT_FAMILIES, FRAME_LABELS } from "./seal";
+import type { FontStyle, FrameStyle, SealType, TextLayout } from "./seal";
+import { FONT_FAMILIES, FRAME_LABELS, LAYOUT_LABELS } from "./seal";
 
 /** 印影を再現するのに必要な最小限の値。描画サイズは含めない(プランで決まるため)。 */
 export interface SealDesign {
@@ -18,11 +18,13 @@ export interface SealDesign {
   squareSuffix: string;
   roundTitle: string;
   frameStyle: FrameStyle;
+  layout: TextLayout;
 }
 
 const SEAL_TYPES: readonly SealType[] = ["square", "round"];
 const FONT_STYLES = Object.keys(FONT_FAMILIES) as FontStyle[];
 const FRAME_STYLES = Object.keys(FRAME_LABELS) as FrameStyle[];
+const TEXT_LAYOUTS = Object.keys(LAYOUT_LABELS) as TextLayout[];
 
 /** 会社名の上限。Stripe の metadata 値は 500 文字までだが、印影として成立する長さで切る。 */
 const MAX_COMPANY_NAME = 30;
@@ -60,6 +62,10 @@ export function parseSealDesign(input: unknown): SealDesign {
   const rawFrame = raw.frameStyle as FrameStyle;
   const frameStyle = FRAME_STYLES.includes(rawFrame) ? rawFrame : "single";
 
+  // 文字組みも後から追加した項目。frameStyle と同じ理由で既定値に寄せる。
+  const rawLayout = raw.layout as TextLayout;
+  const layout = TEXT_LAYOUTS.includes(rawLayout) ? rawLayout : "vertical";
+
   return {
     companyName,
     type,
@@ -68,6 +74,7 @@ export function parseSealDesign(input: unknown): SealDesign {
     squareSuffix: pickString(raw.squareSuffix, MAX_LABEL),
     roundTitle: pickString(raw.roundTitle, MAX_LABEL),
     frameStyle,
+    layout,
   };
 }
 
@@ -81,6 +88,7 @@ export function toStripeMetadata(design: SealDesign): Record<string, string> {
     "metadata[squareSuffix]": design.squareSuffix,
     "metadata[roundTitle]": design.roundTitle,
     "metadata[frameStyle]": design.frameStyle,
+    "metadata[layout]": design.layout,
   };
 }
 

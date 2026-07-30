@@ -2,6 +2,8 @@ export type SealType = "square" | "round";
 export type FontStyle = "shippori" | "noto" | "kaisei" | "yuji";
 /** 角印の枠デザイン。丸印は二重円で固定のため適用しない。 */
 export type FrameStyle = "single" | "bold" | "double" | "rounded";
+/** 角印の文字組み。丸印は外周が円弧・中央が縦組み固定のため適用しない。 */
+export type TextLayout = "vertical" | "horizontal";
 
 export interface SealOptions {
   companyName: string;
@@ -12,6 +14,7 @@ export interface SealOptions {
   squareSuffix: string;
   roundTitle: string;
   frameStyle: FrameStyle;
+  layout: TextLayout;
 }
 
 export const FONT_FAMILIES: Record<FontStyle, string> = {
@@ -37,6 +40,11 @@ export const FRAME_LABELS: Record<FrameStyle, string> = {
   bold: "太枠（押印感が強い）",
   double: "二重枠（格式）",
   rounded: "角丸（やわらかい印象）",
+};
+
+export const LAYOUT_LABELS: Record<TextLayout, string> = {
+  vertical: "縦書き（伝統的・右列から）",
+  horizontal: "横書き（左から読む）",
 };
 
 export const FONT_LABELS: Record<FontStyle, string> = {
@@ -236,24 +244,29 @@ function drawSquareSeal(
   const padding = drawSquareFrame(ctx, size, color, options.frameStyle);
   const innerSize = size - 2 * padding;
 
-  const cols = groups.length;
-  const cellW = innerSize / cols;
-
   ctx.fillStyle = color;
 
-  for (let colIdx = 0; colIdx < cols; colIdx++) {
-    const colFromRight = colIdx;
-    const group = groups[colIdx];
+  // 縦書きは「語のまとまり=列」で右から左へ、横書きは「語のまとまり=行」で上から下へ。
+  // どちらもまとまり単位で1マスの大きさが決まる点は同じなので、軸だけを入れ替える。
+  const bandSize = innerSize / groups.length;
+
+  groups.forEach((group, groupIdx) => {
     const chars = Array.from(group);
-    if (chars.length === 0) continue;
+    if (chars.length === 0) return;
 
-    const rows = chars.length;
-    const cellH = innerSize / rows;
+    const charSize = innerSize / chars.length;
 
-    const cx = size - padding - cellW / 2 - cellW * colFromRight;
+    chars.forEach((char, charIdx) => {
+      const bandCenter = padding + bandSize / 2 + bandSize * groupIdx;
+      const charCenter = padding + charSize / 2 + charSize * charIdx;
 
-    chars.forEach((char, rowIdx) => {
-      const cy = padding + cellH / 2 + cellH * rowIdx;
+      // 縦書きの列は右端から数えるため、x 座標だけ反転させる
+      const cx =
+        options.layout === "horizontal" ? charCenter : size - bandCenter;
+      const cy = options.layout === "horizontal" ? bandCenter : charCenter;
+      const cellW = options.layout === "horizontal" ? charSize : bandSize;
+      const cellH = options.layout === "horizontal" ? bandSize : charSize;
+
       drawCellChar(
         ctx,
         char,
@@ -266,7 +279,7 @@ function drawSquareSeal(
         0.94,
       );
     });
-  }
+  });
 }
 
 function drawRoundSeal(
