@@ -97,15 +97,22 @@ export function parseCompanyName(name: string): ParsedName {
   return { prefix: "", core: trimmed, hasPrefix: false };
 }
 
+/** 実際に描く文字を渡して、その字を含むフォントの読み込みを待つ。
+ *
+ *  Google Fonts は書体を文字コードの範囲ごとに分割して配信するため、
+ *  「印」だけを読み込んでも社名の漢字・かなは届かない。
+ *  読み込めていない字は別の書体で描かれてしまい、1つの印影の中で字面が揃わなくなる。 */
 export async function ensureFontLoaded(
   fontFamily: string,
   weight: number,
   size: number,
+  text: string,
 ): Promise<void> {
   if (typeof document === "undefined" || !document.fonts) return;
   const firstFont = fontFamily.split(",")[0].trim().replace(/"/g, "");
+  const chars = Array.from(new Set(Array.from(text + "印"))).join("");
   try {
-    await document.fonts.load(`${weight} ${size}px "${firstFont}"`, "印");
+    await document.fonts.load(`${weight} ${size}px "${firstFont}"`, chars);
     await document.fonts.ready;
   } catch {
   }
@@ -125,6 +132,7 @@ export async function drawSeal(
     FONT_FAMILIES[fontStyle],
     FONT_WEIGHTS[fontStyle],
     size * 0.15,
+    options.companyName + options.squareSuffix + options.roundTitle,
   );
 
   ctx.clearRect(0, 0, size, size);
@@ -136,6 +144,16 @@ export async function drawSeal(
   }
 }
 
+/** マスの縦横比に合わせて文字を変形させるときの上限。
+ *  実際の印章も字を長体・平体にして印面を埋めるが、比を取りすぎると読みにくくなる。 */
+const MAX_CELL_STRETCH = 1.5;
+
+/** 1文字を、指定の中心に、マスからはみ出さない大きさで描く。
+ *
+ *  文字の大きさはフォントの em(文字の設計上の正方形)で決める。
+ *  文字ごとの外接矩形に合わせて拡大すると、「ン」「ル」「ー」のように
+ *  もともと小さく設計された字が漢字と同じ大きさまで引き伸ばされ、字形が崩れる。
+ *  em で揃えれば、漢字・かな・カタカナが本来の大きさの関係を保ったまま並ぶ。 */
 function drawCellChar(
   ctx: CanvasRenderingContext2D,
   char: string,
@@ -147,24 +165,33 @@ function drawCellChar(
   weight: number,
   fillRatio = 0.92,
 ): void {
-  const baseSize = Math.min(cellW, cellH);
-  ctx.font = `${weight} ${baseSize}px ${fontFamily}`;
+  const emSize = Math.min(cellW, cellH) * fillRatio;
+  ctx.font = `${weight} ${emSize}px ${fontFamily}`;
+
+  // マスが正方形でないときは、印面が間延びしないよう長体・平体に変形させる。
+  // 変形はマス単位(=同じ列のすべての字に同じ倍率)なので、字ごとの崩れは起きない
+  const cellRatio = cellW / cellH;
+  const stretchX = cellRatio > 1 ? Math.min(cellRatio, MAX_CELL_STRETCH) : 1;
+  const stretchY = cellRatio < 1 ? Math.min(1 / cellRatio, MAX_CELL_STRETCH) : 1;
+
   const metrics = ctx.measureText(char);
   const charW =
     metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight ||
     metrics.width;
   const charH =
     metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent ||
-    baseSize;
+    emSize;
 
-  const targetW = cellW * fillRatio;
-  const targetH = cellH * fillRatio;
-  const scaleX = targetW / charW;
-  const scaleY = targetH / charH;
+  // em で描くと稀にマスをはみ出す字がある(装飾書体など)。その時だけ縮める
+  const shrink = Math.min(
+    1,
+    (cellW * fillRatio) / (charW * stretchX),
+    (cellH * fillRatio) / (charH * stretchY),
+  );
 
   ctx.save();
   ctx.translate(cx, cy);
-  ctx.scale(scaleX, scaleY);
+  ctx.scale(stretchX * shrink, stretchY * shrink);
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(char, 0, 0);
@@ -250,15 +277,23 @@ function drawSquareSeal(
   // どちらもまとまり単位で1マスの大きさが決まる点は同じなので、軸だけを入れ替える。
   const bandSize = innerSize / groups.length;
 
+  // 文字の大きさは、まとまりごとではなく印面全体で1つに決める。
+  // 列ごとに innerSize を割ると、「之印」のような2文字の列だけが極端に大きくなり、
+  // 同じ印影の中で文字の大きさが揃わなくなるため。
+  const maxChars = Math.max(...groups.map((g) => Array.from(g).length));
+  const charSize = innerSize / maxChars;
+
   groups.forEach((group, groupIdx) => {
     const chars = Array.from(group);
     if (chars.length === 0) return;
 
-    const charSize = innerSize / chars.length;
+    // 文字数が少ないまとまりは、印面の中央に寄せて配置する
+    const runOffset = (innerSize - charSize * chars.length) / 2;
 
     chars.forEach((char, charIdx) => {
       const bandCenter = padding + bandSize / 2 + bandSize * groupIdx;
-      const charCenter = padding + charSize / 2 + charSize * charIdx;
+      const charCenter =
+        padding + runOffset + charSize / 2 + charSize * charIdx;
 
       // 縦書きの列は右端から数えるため、x 座標だけ反転させる
       const cx =
@@ -353,12 +388,22 @@ function drawOuterRingText(
 
   const ringWidth = outerR - innerR;
   const textRadius = (outerR + innerR) / 2;
-  const charBox = ringWidth * 0.78;
 
-  const arcSpan = Math.PI * 1.45;
-  const angleStep = arcSpan / chars.length;
+  // 社名は輪の上半分を中心に回す。使ってよい弧の長さには上限を設け、
+  // 残りは下側の空きにする(実際の代表者印と同じ配置)。
+  const maxSpan = Math.PI * 1.5;
+  const idealBox = ringWidth * 0.78;
+  // 文字と文字の間隔。字数が少ないときに間延びしないよう、1文字ぶんで頭打ちにする
+  const maxStep = (idealBox * 1.15) / textRadius;
+  const angleStep = Math.min(maxSpan / chars.length, maxStep);
 
-  const startAngle = -Math.PI / 2 + angleStep / 2;
+  // 文字の大きさは「輪の幅」と「1文字あたりの弧の長さ」の小さいほうに合わせる。
+  // 弧の長さを見ないと、社名が長いときに隣の文字と重なって潰れる。
+  const charBox = Math.min(idealBox, textRadius * angleStep * 0.95);
+
+  // 全体を真上に対して左右対称に置く
+  const totalSpan = angleStep * chars.length;
+  const startAngle = -Math.PI / 2 - totalSpan / 2 + angleStep / 2;
 
   ctx.fillStyle = color;
 
@@ -371,6 +416,8 @@ function drawOuterRingText(
     ctx.translate(x, y);
     ctx.rotate(angle + Math.PI / 2);
 
+    // 角印と同じく em 基準。輪の中では隣の字とぶつかりやすいので、
+    // はみ出す字だけを縮めて収める
     ctx.font = `${weight} ${charBox}px ${fontFamily}`;
     const metrics = ctx.measureText(char);
     const charW =
@@ -380,9 +427,12 @@ function drawOuterRingText(
       metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent ||
       charBox;
 
-    const scaleX = (charBox * 0.95) / charW;
-    const scaleY = (charBox * 0.95) / charH;
-    ctx.scale(scaleX, scaleY);
+    const shrink = Math.min(
+      1,
+      (charBox * 0.95) / charW,
+      (charBox * 0.95) / charH,
+    );
+    if (shrink < 1) ctx.scale(shrink, shrink);
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(char, 0, 0);
