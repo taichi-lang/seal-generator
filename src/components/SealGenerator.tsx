@@ -274,18 +274,18 @@ export default function SealGenerator() {
               type="color"
               value={color}
               onChange={(e) => setColor(e.target.value)}
-              className="h-10 w-14 rounded cursor-pointer border border-zinc-300 dark:border-zinc-700"
+              className="h-10 w-14 shrink-0 rounded cursor-pointer border border-zinc-300 dark:border-zinc-700"
             />
             <input
               type="text"
               value={color}
               onChange={(e) => setColor(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-mono text-sm"
+              className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-mono text-sm"
             />
             <button
               type="button"
               onClick={() => setColor(DEFAULT_COLOR)}
-              className="px-3 py-2 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              className="shrink-0 whitespace-nowrap px-3 py-2 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
             >
               リセット
             </button>
