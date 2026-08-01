@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import GuideArticle, { H2, Note, P } from "@/components/GuideArticle";
+import GuideArticle, { ExternalTool, H2, Note, P } from "@/components/GuideArticle";
 import { findGuide } from "@/lib/guides";
 import { SERVICE_NAME } from "@/lib/site";
 
@@ -95,6 +95,13 @@ export default function Page() {
         本サイトのツールは、無料の書き出しでも透かしを入れていません。
       </P>
 
+      <ExternalTool
+        href="https://invoice-tool-kohl.vercel.app/guide/seikyusho-kakikata"
+        title="押す側の書類そのものを作るなら"
+      >
+        請求書・見積書・領収書のひな形を無料で作れるツールがあります。
+        当サイトは印鑑、リンク先は書類、と役割が分かれています。
+      </ExternalTool>
     </GuideArticle>
   );
 }
