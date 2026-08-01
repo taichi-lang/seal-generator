@@ -6,6 +6,8 @@ import { PRICE_JPY } from "@/lib/pricing";
 export const metadata: Metadata = {
   title: `特定商取引法に基づく表記・プライバシーポリシー | ${SERVICE_NAME}`,
   description: `${SERVICE_NAME}の特定商取引法に基づく表記とプライバシーポリシー`,
+  alternates: { canonical: "/legal" },
+  openGraph: { url: "/legal", title: `特定商取引法に基づく表記・プライバシーポリシー | ${SERVICE_NAME}` },
 };
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -71,8 +73,17 @@ export default function LegalPage() {
               (Stripeのデータ保持ポリシーに従います)。
             </Row>
             <Row label="第三者提供">法令に基づく場合を除き、第三者に提供しません。</Row>
-            <Row label="アクセス解析・広告">
-              現在、アクセス解析ツール・広告配信は使用していません。導入する場合は本ページで告知します。
+            <Row label="アクセス解析">
+              どのページが見られているかを把握するため、Vercel Web Analytics を使用しています(2026年8月2日導入)。
+              取得するのは、閲覧されたページのURL・参照元・おおよその地域(国・都市)・
+              端末とブラウザの種類です。
+              <strong>Cookieは使用せず、個人を特定できる情報は取得しません</strong>
+              (提供元の説明によると、訪問者はリクエストから作られたハッシュ値で区別され、
+              その値も24時間で破棄されます)。
+              なお、決済後のダウンロード画面(/unlock)は計測の対象から除外しています。
+            </Row>
+            <Row label="広告配信">
+              広告配信は使用していません。導入する場合は本ページで告知します。
             </Row>
           </dl>
         </section>

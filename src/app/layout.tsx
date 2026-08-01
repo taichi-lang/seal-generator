@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import SiteAnalytics from "@/components/SiteAnalytics";
 import SiteFooter from "@/components/SiteFooter";
+import { SITE_DESCRIPTION, SITE_TITLE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -9,8 +11,22 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "会社印ジェネレーター",
-  description: "会社名を入力するだけで角印・丸印を自動生成",
+  // 各ページの canonical・OGP を相対パスで書けるようにする土台。
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    siteName: "会社印ジェネレーター",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: "/",
+  },
+  // 共有時のカード画像はまだ用意していない。画像なしで large_image を宣言すると
+  // 空の枠が出るだけなので、テキストのみの summary にしておく。
+  twitter: { card: "summary" },
 };
 
 export default function RootLayout({
@@ -38,6 +54,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-black">
         {children}
         <SiteFooter />
+        <SiteAnalytics />
       </body>
     </html>
   );
