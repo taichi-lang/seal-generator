@@ -8,6 +8,13 @@ const guide = findGuide("kaisha-inkan")!;
 export const metadata: Metadata = {
   title: `${guide.title} | ${SERVICE_NAME}`,
   description: guide.description,
+  alternates: { canonical: "/guide/kaisha-inkan" },
+  openGraph: {
+    title: guide.title,
+    description: guide.description,
+    url: "/guide/kaisha-inkan",
+    type: "article",
+  },
 };
 
 export default function Page() {

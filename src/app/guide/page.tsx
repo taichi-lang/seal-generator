@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: `会社印の解説 | ${SERVICE_NAME}`,
   description:
     "会社設立で必要な印鑑の種類、角印の押し方、電子印鑑の作り方をまとめた解説記事の一覧です。",
+  alternates: { canonical: "/guide" },
+  // 継承したままだとトップの URL が入ってしまうので、このページ自身を指す。
+  openGraph: { url: "/guide", title: `会社印の解説 | ${SERVICE_NAME}` },
 };
 
 export default function GuideIndexPage() {

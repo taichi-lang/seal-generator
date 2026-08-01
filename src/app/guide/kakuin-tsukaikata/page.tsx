@@ -8,6 +8,13 @@ const guide = findGuide("kakuin-tsukaikata")!;
 export const metadata: Metadata = {
   title: `${guide.title} | ${SERVICE_NAME}`,
   description: guide.description,
+  alternates: { canonical: "/guide/kakuin-tsukaikata" },
+  openGraph: {
+    title: guide.title,
+    description: guide.description,
+    url: "/guide/kakuin-tsukaikata",
+    type: "article",
+  },
 };
 
 export default function Page() {
@@ -87,6 +94,7 @@ export default function Page() {
         印刷して配る書類に使うなら、粗さが目立たないよう1000px以上を用意しておくと安心です。
         本サイトのツールは、無料の書き出しでも透かしを入れていません。
       </P>
+
     </GuideArticle>
   );
 }

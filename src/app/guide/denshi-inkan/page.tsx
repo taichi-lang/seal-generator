@@ -8,6 +8,13 @@ const guide = findGuide("denshi-inkan")!;
 export const metadata: Metadata = {
   title: `${guide.title} | ${SERVICE_NAME}`,
   description: guide.description,
+  alternates: { canonical: "/guide/denshi-inkan" },
+  openGraph: {
+    title: guide.title,
+    description: guide.description,
+    url: "/guide/denshi-inkan",
+    type: "article",
+  },
 };
 
 export default function Page() {
