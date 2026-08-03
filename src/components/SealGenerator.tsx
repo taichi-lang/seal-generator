@@ -93,10 +93,14 @@ export default function SealGenerator() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(design),
       });
-      const data = (await res.json()) as { url?: string };
+      const data = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !data.url) {
+        // 決済手段が未設定のときは「時間をおけば直る」わけではないので、
+        // 一時的な失敗と区別して、無料ダウンロードが使えることを伝える
         setCheckoutError(
-          "決済ページを開けませんでした。時間をおいて再度お試しください。",
+          data.error === "payment not configured"
+            ? "ただいま高解像度パックの販売を一時停止しています。上の「無料で PNG ダウンロード」は通常どおりご利用いただけます(透かしなし・商用利用の許諾は含まれません)。"
+            : "決済ページを開けませんでした。時間をおいて再度お試しください。",
         );
         return;
       }
