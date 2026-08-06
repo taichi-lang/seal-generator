@@ -28,8 +28,8 @@ export const RELATED_SITES: RelatedSite[] = [
     label: "工具えらび堂(電動工具の選び方)",
     href: "https://kougu-erabido.vercel.app",
   },
-  {
-    label: "星導Seido(星座占い・タロット)",
-    href: "https://seido-web.vercel.app",
-  },
+  // 占いサイト(星導Seido)へのリンクは、オーナー指示(2026-08-06)により置かない。
+  // 会社設立の手続きで印鑑を用意しに来た人に占いを出すのは、文脈が離れすぎている。
+  // 相互リンクの狙いはクローラーの巡回経路を増やすことだが、
+  // それは「読む人が不自然に思うリンクを置いてよい理由」にはならない。
 ];
