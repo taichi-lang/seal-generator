@@ -41,7 +41,7 @@ export default function LegalPage() {
             </Row>
             <Row label="お問い合わせ">{CONTACT_EMAIL}</Row>
             <Row label="販売価格">
-              高解像度パック {PRICE_JPY.toLocaleString()}円(税込)。無料プランの利用に費用はかかりません
+              業務利用パック(利用許諾書つき) {PRICE_JPY.toLocaleString()}円(税込)。無料プランの利用に費用はかかりません
             </Row>
             <Row label="商品代金以外の必要料金">インターネット接続に係る通信料</Row>
             <Row label="支払方法">クレジットカード等(Stripe決済)</Row>

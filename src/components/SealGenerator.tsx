@@ -99,7 +99,7 @@ export default function SealGenerator() {
         // 一時的な失敗と区別して、無料ダウンロードが使えることを伝える
         setCheckoutError(
           data.error === "payment not configured"
-            ? "ただいま高解像度パックの販売を一時停止しています。上の「無料で PNG ダウンロード」は通常どおりご利用いただけます(透かしなし・商用利用の許諾は含まれません)。"
+            ? "ただいま業務利用パックの販売を一時停止しています。上の「無料で PNG ダウンロード」は通常どおりご利用いただけます(透かしなし・商用利用の許諾は含まれません)。"
             : "決済ページを開けませんでした。時間をおいて再度お試しください。",
         );
         return;
@@ -324,7 +324,7 @@ export default function SealGenerator() {
       <section className="md:col-span-2 bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-800">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-            高解像度パック
+            業務利用パック(利用許諾書つき)
           </h2>
           <p className="text-zinc-900 dark:text-zinc-100">
             <span className="text-2xl font-bold">{PRICE_JPY.toLocaleString()}</span>
@@ -333,8 +333,9 @@ export default function SealGenerator() {
         </div>
 
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          上のダウンロードは無料で、透かしも入りません。印刷に耐えるサイズと、
-          業務で使うための許諾が必要な方だけご購入ください。
+          上のダウンロードは無料で、透かしも入りません。
+          この印影を業務で使ってよいことを<strong>書面で残しておきたい方</strong>
+          (発行番号と購入日の入った利用許諾書が必要な方)だけご購入ください。
         </p>
 
         <ul className="mt-4 space-y-2">
@@ -359,7 +360,7 @@ export default function SealGenerator() {
         >
           {checkoutBusy
             ? "決済ページへ移動しています…"
-            : `高解像度パックを購入する(${PRICE_JPY.toLocaleString()}円)`}
+            : `業務利用パックを購入する(${PRICE_JPY.toLocaleString()}円)`}
         </button>
 
         {checkoutError && (
