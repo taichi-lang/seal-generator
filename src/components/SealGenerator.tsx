@@ -352,6 +352,13 @@ export default function SealGenerator() {
           ))}
         </ul>
 
+        {/* 看板を「許諾書」に架け替えた以上、それが何の書面かを誤解させない。
+            許諾は当方が与える使用許可であって、押印の法的効力とは別のレイヤーである */}
+        <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
+          ※ 利用許諾書は、当方がこの印影データの業務利用を許諾する書面です。
+          押印そのものに法的な効力を与えるものではありません(画像の印影は印鑑登録=実印には使えません)。
+        </p>
+
         <button
           type="button"
           onClick={handlePurchase}
