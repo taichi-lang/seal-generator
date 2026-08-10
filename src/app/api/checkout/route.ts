@@ -1,4 +1,4 @@
-/** POST /api/checkout — 高解像度パック(500円)の Stripe Checkout セッションを作成する。
+/** POST /api/checkout — 業務利用パック(500円)の Stripe Checkout セッションを作成する。
  *
  * 印影の設計値はセッションの metadata に載せる(ステートレス)。
  * 決済完了後は /api/unlock が session_id で取り出すため、当方は何も保存しない。

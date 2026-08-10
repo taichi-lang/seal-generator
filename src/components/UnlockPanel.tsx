@@ -111,7 +111,7 @@ export default function UnlockPanel({ sessionId }: { sessionId: string }) {
           ご購入ありがとうございます
         </h2>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          「{data.design.companyName}」の高解像度データをダウンロードできます。
+          「{data.design.companyName}」の利用許諾書と高解像度データをダウンロードできます。
           <br />
           このページは閉じると再表示できません。先にすべて保存してください。
         </p>
