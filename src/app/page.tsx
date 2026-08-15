@@ -25,7 +25,7 @@ const APP_JSON_LD = {
     },
     {
       "@type": "Offer",
-      name: "業務利用パック(利用許諾書つき・商用利用可)",
+      name: "業務利用パック(購入者名入りの利用許諾書つき)",
       price: PRICE_JPY,
       priceCurrency: "JPY",
       url: `${SITE_URL}/`,

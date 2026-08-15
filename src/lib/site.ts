@@ -17,7 +17,7 @@ export const SITE_URL = "https://seal-generator.vercel.app";
 export const SITE_TITLE = "角印・丸印を無料作成｜会社印ジェネレーター";
 
 export const SITE_DESCRIPTION =
-  "会社名を入力するだけで、請求書・見積書に押せる角印(社印)と丸印(代表者印)の印影を無料で作成できます。透過PNG・透かしなし。商用利用の可否と解像度を明記しています。";
+  "会社名を入力するだけで、請求書・見積書に押せる角印(社印)と丸印(代表者印)の印影を無料で作成できます。透過PNG・透かしなし。書き出しの解像度(560px)を明記しています。";
 
 /** 特定商取引法に基づき表示が必要な販売事業者名。 */
 export const SELLER_NAME = "中村太一";
