@@ -334,6 +334,7 @@ export default function SealGenerator() {
 
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
           上のダウンロードは無料で、透かしも入りません。
+          <strong>無料プランで作成した印影も、そのまま商用利用していただけます。</strong>
           この印影を業務で使ってよいことを<strong>書面で残しておきたい方</strong>
           (発行番号と購入日の入った利用許諾書が必要な方)だけご購入ください。
         </p>

@@ -92,7 +92,17 @@ export default function LegalPage() {
           <h2 className="text-lg font-semibold mb-2 text-zinc-900 dark:text-zinc-100">
             ご利用上の注意
           </h2>
+          {/* 2026-08-17: 無料プランの商用利用の可否を明記した(統括裁定 ●11)。
+              それまでは明記も否定もしていない状態で、読み手には
+              「有料でないと商用利用できない」と受け取られうる書き方だった。 */}
           <p className="text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
+            <strong>無料プランで作成した印影も、商用利用していただけます。</strong>
+            請求書・見積書・契約書などの業務書類にそのままお使いいただけます(利用料はかかりません)。
+            有料の業務利用パックは、購入者名と発行番号の入った利用許諾書を書面として手元に残したい場合、
+            および高解像度データが必要な場合にご利用ください。
+          </p>
+
+          <p className="mt-4 text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed">
             本サービスが生成するのは印影の画像データであり、実物の印章ではありません。
             印鑑登録(実印)には使用できません。
             生成された印影が既存の登録商標や他社の印影と類似しないことは保証しませんので、
