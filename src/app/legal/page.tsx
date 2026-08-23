@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CONTACT_EMAIL, SELLER_NAME, SERVICE_NAME } from "@/lib/site";
+import { CONTACT_EMAIL, OG_IMAGE_PATH, SELLER_NAME, SERVICE_NAME } from "@/lib/site";
 import { PRICE_JPY } from "@/lib/pricing";
 
 export const metadata: Metadata = {
   title: `特定商取引法に基づく表記・プライバシーポリシー | ${SERVICE_NAME}`,
   description: `${SERVICE_NAME}の特定商取引法に基づく表記とプライバシーポリシー`,
   alternates: { canonical: "/legal" },
-  openGraph: { url: "/legal", title: `特定商取引法に基づく表記・プライバシーポリシー | ${SERVICE_NAME}` },
+  openGraph: {
+    url: "/legal",
+    title: `特定商取引法に基づく表記・プライバシーポリシー | ${SERVICE_NAME}`,
+    images: [OG_IMAGE_PATH],
+  },
 };
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
