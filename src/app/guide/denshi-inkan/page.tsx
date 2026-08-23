@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import GuideArticle, { H2, Note, P } from "@/components/GuideArticle";
 import { findGuide } from "@/lib/guides";
-import { SERVICE_NAME } from "@/lib/site";
+import { OG_IMAGE_PATH, SERVICE_NAME } from "@/lib/site";
 
 const guide = findGuide("denshi-inkan")!;
 
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
     description: guide.description,
     url: "/guide/denshi-inkan",
     type: "article",
+    images: [OG_IMAGE_PATH],
   },
 };
 

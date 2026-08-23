@@ -24,9 +24,9 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     url: "/",
   },
-  // 共有時のカード画像はまだ用意していない。画像なしで large_image を宣言すると
-  // 空の枠が出るだけなので、テキストのみの summary にしておく。
-  twitter: { card: "summary" },
+  // カード画像は app/opengraph-image.png(1200x630)のファイル規約で配信される。
+  // og:image / twitter:image のタグは Next.js が自動で出力する。
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({

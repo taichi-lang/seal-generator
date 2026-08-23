@@ -19,6 +19,13 @@ export const SITE_TITLE = "角印・丸印を無料作成｜会社印ジェネ�
 export const SITE_DESCRIPTION =
   "会社名を入力するだけで、請求書・見積書に押せる角印(社印)と丸印(代表者印)の印影を無料で作成できます。透過PNG・透かしなし。書き出しの解像度(560px)を明記しています。";
 
+/** SNS 共有カード用の OG 画像(app/opengraph-image.png、1200x630)のパス。
+ *
+ * ルートのファイル規約画像は、openGraph を自前定義したページには引き継がれない
+ * (この Next のバージョンで実測)。そのため各ページの openGraph.images で
+ * 明示的にこのパスを指定する。 */
+export const OG_IMAGE_PATH = "/opengraph-image.png";
+
 /** 特定商取引法に基づき表示が必要な販売事業者名。 */
 export const SELLER_NAME = "中村太一";
 
