@@ -37,6 +37,7 @@ export default function LegalPage() {
           </h2>
           <dl>
             <Row label="販売事業者">{SELLER_NAME}</Row>
+            <Row label="運営統括責任者">{SELLER_NAME}</Row>
             <Row label="所在地">
               請求があった場合、遅滞なく開示いたします(下記お問い合わせ先までご請求ください)
             </Row>
@@ -52,6 +53,12 @@ export default function LegalPage() {
             <Row label="支払時期">ご注文時</Row>
             <Row label="引渡時期">
               決済完了後、直ちにダウンロードページを表示します
+            </Row>
+            <Row label="動作環境">
+              印影の作成には、JavaScript を有効にした最新版のウェブブラウザが必要です。
+              お渡しするファイルは透過 PNG 画像と、利用許諾書のテキストファイル(UTF-8)です。
+              いずれも表示・保存には、PNG 画像とテキストファイルを開ける環境が必要です。
+              専用のソフトウェアのインストールは不要です。
             </Row>
             <Row label="返品・キャンセル">
               デジタルコンテンツの性質上、決済完了後の返金には応じられません。
