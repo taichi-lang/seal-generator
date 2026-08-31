@@ -6,7 +6,7 @@ import { OG_IMAGE_PATH, SERVICE_NAME } from "@/lib/site";
 export const metadata: Metadata = {
   title: `会社印の解説 | ${SERVICE_NAME}`,
   description:
-    "会社設立で必要な印鑑の種類、角印の押し方、電子印鑑の作り方をまとめた解説記事の一覧です。",
+    "会社設立で必要な印鑑の種類、合同会社の代表社員印、開業届と屋号印、角印の押し方、電子印鑑の作り方をまとめた解説記事の一覧です。",
   alternates: { canonical: "/guide" },
   // 継承したままだとトップの URL が入ってしまうので、このページ自身を指す。
   openGraph: {

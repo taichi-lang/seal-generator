@@ -31,6 +31,18 @@ export const GUIDES: readonly GuideMeta[] = [
     description:
       "無料ツールで作れる印影の範囲と、通販で実物を注文する前にデザインを確かめる使い方をまとめます。印鑑登録には使えない点も説明します。",
   },
+  {
+    slug: "godo-kaisha-inkan",
+    title: "合同会社の印鑑 — 代表社員印の作り方と、株式会社との違い",
+    description:
+      "合同会社は定款の認証が要らないぶん、印鑑が要る場面も少なくなります。代表社員印に彫る肩書き、大きさの決まり、届出が任意になった範囲を株式会社と比べて整理します。",
+  },
+  {
+    slug: "kojin-jigyounushi-yagoin",
+    title: "開業届に印鑑は要らない — 個人事業主の屋号印はどこで使うか",
+    description:
+      "開業届の押印は2021年4月から不要です。一方で屋号の角印は請求書で使えます。印鑑登録できない理由と、屋号名義の口座の銀行印までを分けて整理します。",
+  },
 ] as const;
 
 export function findGuide(slug: string): GuideMeta | undefined {
