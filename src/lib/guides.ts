@@ -43,6 +43,18 @@ export const GUIDES: readonly GuideMeta[] = [
     description:
       "開業届の押印は2021年4月から不要です。一方で屋号の角印は請求書で使えます。印鑑登録できない理由と、屋号名義の口座の銀行印までを分けて整理します。",
   },
+  {
+    slug: "inkan-todokedesho",
+    title: "印鑑届書（印鑑届出書）の書き方 — 会社設立で印鑑を届け出るとき",
+    description:
+      "商業登記の印鑑届書に何を書き、何を添えるかを項目ごとに整理します。オンライン申請では印鑑の提出が任意になり、届け出るかどうかを選べるようになりました。",
+  },
+  {
+    slug: "inkan-shomeisho-kaisha",
+    title: "会社の印鑑証明書の取り方 — 個人の印鑑証明とどう違うか",
+    description:
+      "法人の印鑑証明書は市区町村ではなく法務局で取ります。印鑑カードが要ること、取得の3つの方法、いつ求められるかを個人の印鑑証明と比べて整理します。",
+  },
 ] as const;
 
 export function findGuide(slug: string): GuideMeta | undefined {
