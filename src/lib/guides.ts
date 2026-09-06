@@ -38,6 +38,12 @@ export const GUIDES: readonly GuideMeta[] = [
       "無料ツールで作れる印影の範囲と、通販で実物を注文する前にデザインを確かめる使い方をまとめます。印鑑登録には使えない点も説明します。",
   },
   {
+    slug: "denshi-inkan-tsukurikata",
+    title: "電子印鑑の作り方 — エクセル・ワードに貼るまでの手順",
+    description:
+      "会社名から印影を作り、背景が透けた PNG として書き出して、エクセル・ワード・PDF に貼るまでの手順を順に説明します。押印欄からずれないための配置設定と、電子印鑑では代用できない場面も分けて整理します。",
+  },
+  {
     slug: "godo-kaisha-inkan",
     title: "合同会社の印鑑 — 代表社員印の作り方と、株式会社との違い",
     description:
