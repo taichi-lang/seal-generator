@@ -12,6 +12,8 @@ import {
   sealTypeLabel,
 } from "@/lib/download";
 import { buildLicenseText } from "@/lib/license";
+import { runDelivery, type DeliveryItem } from "@/lib/delivery";
+import { CONTACT_EMAIL } from "@/lib/site";
 
 const PREVIEW_SIZE = 320;
 const SEAL_TYPES: SealType[] = ["square", "round"];
@@ -32,6 +34,8 @@ export default function UnlockPanel({ sessionId }: { sessionId: string }) {
   );
   const [data, setData] = useState<Unlocked | null>(null);
   const [busy, setBusy] = useState(false);
+  // 渡せなかったものの名前。空でないあいだは画面に出し続ける
+  const [undelivered, setUndelivered] = useState<string[]>([]);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -46,7 +50,7 @@ export default function UnlockPanel({ sessionId }: { sessionId: string }) {
           setState("error");
           setMessage(
             res.status === 402
-              ? "この決済はまだ完了していません。決済画面を最後まで進めてから、再度お試しください。"
+              ? "決済の確認がまだ取れていません。お支払いが完了している場合は、数秒おいてからページを再読み込みしてください(二重にお支払いなさらないでください)。"
               : "購入内容を確認できませんでした。お手数ですが決済完了メールを添えてお問い合わせください。",
           );
           return;
@@ -68,22 +72,34 @@ export default function UnlockPanel({ sessionId }: { sessionId: string }) {
   const downloadAll = useCallback(async () => {
     if (!data) return;
     setBusy(true);
+    setUndelivered([]);
+
+    // 引き渡すものを先に1本の並びにしてから、1件ずつ実行する。
+    // 途中が失敗しても残りを捨てず、落ちたものを画面に出すため(@/lib/delivery)。
+    const items: DeliveryItem[] = [
+      ...SEAL_TYPES.flatMap((type) =>
+        PAID_SIZES.map((size) => ({
+          label: `${sealTypeLabel(type)} ${size}px`,
+          run: () => downloadSealPng(data.design, type, size),
+        })),
+      ),
+      {
+        label: "利用許諾書",
+        run: () =>
+          downloadText(
+            buildLicenseText({
+              companyName: data.design.companyName,
+              licenseId: data.licenseId,
+              purchasedAt: data.purchasedAt,
+            }),
+            `${safeFileName(data.design.companyName)}_利用許諾書.txt`,
+          ),
+      },
+    ];
+
     try {
-      for (const type of SEAL_TYPES) {
-        for (const size of PAID_SIZES) {
-          await downloadSealPng(data.design, type, size);
-          // 連続ダウンロードはブラウザにまとめて弾かれることがあるため間隔をあける
-          await new Promise((r) => setTimeout(r, 350));
-        }
-      }
-      downloadText(
-        buildLicenseText({
-          companyName: data.design.companyName,
-          licenseId: data.licenseId,
-          purchasedAt: data.purchasedAt,
-        }),
-        `${safeFileName(data.design.companyName)}_利用許諾書.txt`,
-      );
+      const { failed } = await runDelivery(items);
+      setUndelivered(failed);
     } finally {
       setBusy(false);
     }
@@ -113,7 +129,7 @@ export default function UnlockPanel({ sessionId }: { sessionId: string }) {
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           「{data.design.companyName}」の利用許諾書と高解像度データをダウンロードできます。
           <br />
-          このページは閉じると再表示できません。先にすべて保存してください。
+          このページの URL は保存しておけば、あとから同じ内容を開き直せます。
         </p>
       </div>
 
@@ -132,6 +148,25 @@ export default function UnlockPanel({ sessionId }: { sessionId: string }) {
         >
           {busy ? "書き出し中…" : "すべて一括ダウンロード(8 ファイル + 利用許諾書)"}
         </button>
+        {undelivered.length > 0 && (
+          // ⚠ 黙って戻らない。払った人が「何が来ていないか」を名前で分かるようにする
+          <div
+            role="alert"
+            className="rounded-lg border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950 p-4 space-y-2"
+          >
+            <p className="text-sm font-semibold text-red-800 dark:text-red-300">
+              {undelivered.length} 件が保存できませんでした
+            </p>
+            <p className="text-xs text-red-800 dark:text-red-300">
+              {undelivered.join("・")}
+            </p>
+            <p className="text-xs text-red-800 dark:text-red-300">
+              ブラウザが連続ダウンロードを止めている場合があります。ダウンロードの許可を出したうえで、
+              もう一度上のボタンを押すか、各サイズのボタンから個別に保存してください。
+              解決しないときは、下の発行番号を添えて {CONTACT_EMAIL} までご連絡ください。
+            </p>
+          </div>
+        )}
         <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center">
           発行番号: <span className="font-mono">{data.licenseId}</span>
         </p>

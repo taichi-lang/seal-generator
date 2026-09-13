@@ -24,3 +24,16 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* 広告の印刷対策(`広告_設計.md` §4)。
+ *
+ * 入れ物には `no-print` を付けてあるが、付け忘れが1か所でもあると紙に出る。
+ * クラス名に頼らず、器そのものを消す規則を独立して置いておく。
+ * 印影のダウンロードは canvas なので影響を受けないが、
+ * 記事や印影を紙に出す人がいても広告は混ざらない。 */
+@media print {
+  .ad-slot,
+  .no-print {
+    display: none !important;
+  }
+}

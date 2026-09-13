@@ -305,18 +305,22 @@ export default function SealGenerator() {
         </button>
       </section>
 
-      <section className="flex flex-col items-center justify-center bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-sm border border-zinc-200 dark:border-zinc-800">
-        <h2 className="text-lg font-semibold mb-4 text-zinc-900 dark:text-zinc-100 self-start">
+      {/* 狭い画面では、プレビューを設定フォームより前に置き、さらに画面上部に貼り付ける。
+          2026-08-27 の実測で、375px ではプレビューが最初の入力欄から 1,075px 下(画面約1.3個ぶん)にあり、
+          設定を変えている間ずっと結果が画面の外にいた。主機能の結果が主機能の操作中に見えない状態だった。
+          md 以上は従来どおり(左=設定 / 右=プレビュー)で、貼り付けも順序変更も効かせない。 */}
+      <section className="order-first md:order-none sticky top-0 z-10 self-start md:static md:self-auto flex flex-col items-center justify-center bg-white/95 dark:bg-zinc-900/95 backdrop-blur md:bg-white md:dark:bg-zinc-900 rounded-2xl p-4 md:p-6 shadow-sm border border-zinc-200 dark:border-zinc-800">
+        <h2 className="text-lg font-semibold mb-2 md:mb-4 text-zinc-900 dark:text-zinc-100 self-start">
           プレビュー
         </h2>
-        <div className="flex-1 flex items-center justify-center w-full bg-zinc-50 dark:bg-zinc-950 rounded-xl p-4">
+        <div className="flex-1 flex items-center justify-center w-full bg-zinc-50 dark:bg-zinc-950 rounded-xl p-2 md:p-4">
           <canvas
             ref={canvasRef}
-            className="max-w-full h-auto"
+            className="max-w-full w-auto h-auto max-h-[34vh] md:max-h-none"
             style={{ imageRendering: "auto" }}
           />
         </div>
-        <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400 text-center">
+        <p className="mt-2 md:mt-3 text-xs text-zinc-500 dark:text-zinc-400 text-center">
           透過 PNG / {CANVAS_SIZE}px。見積書・請求書にそのまま貼付可能
         </p>
       </section>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import SealGenerator from "@/components/SealGenerator";
 import { GUIDES } from "@/lib/guides";
+import { STARTER_TOOLS_HUB } from "@/lib/relatedSites";
 import { PRICE_JPY } from "@/lib/pricing";
 import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site";
 
@@ -66,6 +67,29 @@ export default function Home() {
             </li>
           ))}
         </ul>
+      </section>
+
+      {/* 印影ができた人が次に困るのは書類の順番である。
+          姉妹サイトに工程をまとめた入口があるので、そこへ1本だけ渡す。 */}
+      <section className="max-w-5xl mx-auto mt-10 px-6">
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          印鑑ができたら、次は書類
+        </h2>
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+          角印を用意する人の多くは、これから初めて見積書や請求書を出すところです。
+          どの書類を、どの順番で出すのか（見積書 → 納品書 → 請求書 → 領収書）を、
+          姉妹サイトに1ページでまとめてあります。どれも登録不要・無料で、その場でPDFになります。
+        </p>
+        <p className="mt-3">
+          <a
+            href={STARTER_TOOLS_HUB.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm underline text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100"
+          >
+            {STARTER_TOOLS_HUB.label}（姉妹サイト）
+          </a>
+        </p>
       </section>
     </main>
   );
