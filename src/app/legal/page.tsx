@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CONTACT_EMAIL, OG_IMAGE_PATH, SELLER_NAME, SERVICE_NAME } from "@/lib/site";
 import { PRICE_JPY } from "@/lib/pricing";
+import { isArticleAdEnabled } from "@/lib/ads";
 
 export const metadata: Metadata = {
   title: `特定商取引法に基づく表記・プライバシーポリシー | ${SERVICE_NAME}`,
@@ -94,7 +95,31 @@ export default function LegalPage() {
               なお、決済後のダウンロード画面(/unlock)は計測の対象から除外しています。
             </Row>
             <Row label="広告配信">
-              広告配信は使用していません。導入する場合は本ページで告知します。
+              {/* 2026-09-14(B2): 広告の器は `AdSlot` として実装済みで、発行者IDと
+                  広告ユニットIDが入った瞬間に記事面へ描画される。ここを手書きの
+                  「使用していません」のままにすると、その瞬間に本ページが事実と
+                  食い違う。表示を `isArticleAdEnabled()` に結びつけ、広告の有無と
+                  告知が必ず同時に切り替わるようにした(オーナー様の手数は増えない)。 */}
+              {isArticleAdEnabled() ? (
+                <>
+                  解説記事の末尾にのみ、Google AdSense による広告を配信しています。
+                  印影を作る画面・本ページ・記事一覧には配信していません。
+                  Google を含む第三者配信事業者は、Cookie を使用して、
+                  利用者の当サイトや他サイトへの過去のアクセス状況に基づく広告を配信することがあります。
+                  広告設定でパーソナライズ広告を無効にできます(
+                  <a
+                    href="https://policies.google.com/technologies/ads"
+                    className="underline"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    Google の広告に関するポリシー
+                  </a>
+                  をご覧ください)。
+                </>
+              ) : (
+                <>広告配信は使用していません。導入する場合は本ページで告知します。</>
+              )}
             </Row>
           </dl>
         </section>
