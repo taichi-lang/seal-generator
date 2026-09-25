@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdSlot from "@/components/AdSlot";
 import JsonLd from "@/components/JsonLd";
 import { otherGuides, type GuideMeta } from "@/lib/guides";
 import { SITE_URL } from "@/lib/site";
@@ -75,6 +76,8 @@ export default function GuideArticle({
             印影を作ってみる（無料）
           </Link>
         </section>
+
+        <AdSlot />
 
         {related.length > 0 && (
           <section className="space-y-3">

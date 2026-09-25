@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import GuideArticle, { ExternalTool, H2, Note, P } from "@/components/GuideArticle";
 import { findGuide } from "@/lib/guides";
+import { FREE_SIZE } from "@/lib/pricing";
 import { OG_IMAGE_PATH, SERVICE_NAME } from "@/lib/site";
 
 const guide = findGuide("kakuin-tsukaikata")!;
@@ -93,7 +94,8 @@ export default function Page() {
       <P>
         大きさは、画面で見るだけなら一辺500px前後で足ります。
         印刷して配る書類に使うなら、粗さが目立たないよう1000px以上を用意しておくと安心です。
-        本サイトのツールは、無料の書き出しでも透かしを入れていません。
+        本サイトのツールの無料の書き出しは、透かしなしで一辺{" "}
+        {FREE_SIZE}px です。画面上の書類やPDFに貼るには足りますが、上の1000pxには届きません。
       </P>
 
       <ExternalTool
