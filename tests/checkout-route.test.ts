@@ -72,6 +72,25 @@ describe("checkout: 対照 — 鍵があれば判定はその先へ進む", () =
   });
 });
 
+describe("checkout: 本文が空でも、鍵が無ければ 500 は鍵の関門のもの", () => {
+  // 2026-09-27 第1シフトが本番へ空の JSON `{}` を送り 500 を観測し、
+  // 「鍵未設定か入力検証か」を切り分けずに残した。その入力をここで固定する。
+  // 鍵の関門は本文の検証より前にあるため、鍵が無ければ本文が何でも 500 になる。
+  test("鍵なし + `{}` → 500 `payment not configured`(400 ではない)", async () => {
+    delete process.env.STRIPE_SECRET_KEY;
+    const res = await post({});
+    assert.equal(res.status, 500);
+    assert.deepEqual(await res.json(), { error: "payment not configured" });
+  });
+
+  test("対照: 鍵あり + `{}` → 400 `invalid request`(入力検証の応答は 500 ではない)", async () => {
+    process.env.STRIPE_SECRET_KEY = "sk_test_dummy_not_a_real_key";
+    const res = await post({});
+    assert.equal(res.status, 400);
+    assert.deepEqual(await res.json(), { error: "invalid request" });
+  });
+});
+
 describe("unlock: 決済後の引渡し口も同じ関門を持つ", () => {
   function get(query: string) {
     return unlock(new Request(`https://example.test/api/unlock${query}`));
